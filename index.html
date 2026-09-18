@@ -1,0 +1,768 @@
+<meta charset="UTF-8">
+<title>Para Mi Todo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,500;1,9..144,600&family=Quicksand:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#fff3f6;
+    --bg-soft:#ffe3ec;
+    --card:#fffbfc;
+    --ink:#4a1f31;
+    --ink-soft:#8a5468;
+    --rose:#e8547c;
+    --rose-deep:#b8305a;
+    --rose-tint:#ffd7e3;
+    --gold:#c8912f;
+    --line:#f7c9d6;
+    --shadow: 0 20px 50px -20px rgba(184,48,90,0.35);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#231019;
+      --bg-soft:#2f1723;
+      --card:#33192a;
+      --ink:#ffe9f0;
+      --ink-soft:#e3a8bf;
+      --rose:#ff8fae;
+      --rose-deep:#ffb3c6;
+      --rose-tint:#4a2536;
+      --gold:#f0c169;
+      --line:#522939;
+      --shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#231019;
+    --bg-soft:#2f1723;
+    --card:#33192a;
+    --ink:#ffe9f0;
+    --ink-soft:#e3a8bf;
+    --rose:#ff8fae;
+    --rose-deep:#ffb3c6;
+    --rose-tint:#4a2536;
+    --gold:#f0c169;
+    --line:#522939;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Quicksand',system-ui,sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-inline:16px;
+    padding-block:28px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .bg-glow{
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(60% 45% at 18% 12%, var(--bg-soft), transparent 60%),
+      radial-gradient(55% 40% at 85% 85%, var(--rose-tint), transparent 60%),
+      var(--bg);
+  }
+  .hearts{position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;}
+  .hearts span{
+    position:absolute; bottom:-10%;
+    font-size:var(--sz,18px);
+    opacity:0;
+    animation:float-up var(--dur,14s) linear infinite;
+    animation-delay:var(--delay,0s);
+    filter:drop-shadow(0 2px 6px rgba(184,48,90,0.15));
+  }
+  @keyframes float-up{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); opacity:0;}
+    10%{opacity:.55;}
+    50%{ transform:translateY(-55vh) translateX(var(--sway,20px)) rotate(12deg);}
+    90%{opacity:.4;}
+    100%{ transform:translateY(-110vh) translateX(calc(var(--sway,20px) * -1)) rotate(-8deg); opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hearts span{animation:none; opacity:.35;}
+  }
+
+  .stage{
+    width:100%; max-width:440px;
+    align-self:center;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:34px 26px;
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    overflow:hidden;
+  }
+  .eyebrow{
+    font-family:'Quicksand'; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    font-size:11.5px; color:var(--rose-deep); margin:0 0 6px;
+  }
+  h1.script{
+    font-family:'Caveat'; font-weight:700; font-size:clamp(30px,8vw,40px);
+    color:var(--rose-deep); margin:0 0 4px; line-height:1.1;
+  }
+  .lede{
+    font-family:'Fraunces'; font-style:italic; font-weight:500;
+    font-size:16.5px; color:var(--ink-soft); margin:0 0 22px; line-height:1.5;
+  }
+  .btn{
+    font-family:'Quicksand'; font-weight:700; font-size:15px;
+    color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-deep));
+    border:none; border-radius:999px; padding:13px 22px;
+    cursor:pointer; box-shadow:0 10px 24px -10px rgba(184,48,90,.55);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 14px 28px -10px rgba(184,48,90,.6);}
+  .btn:active{transform:translateY(0);}
+  .btn[disabled]{opacity:.4; cursor:not-allowed; box-shadow:none; transform:none;}
+  .btn-ghost{
+    font-family:'Quicksand'; font-weight:600; font-size:14px;
+    color:var(--rose-deep); background:transparent; border:1.5px solid var(--line);
+    border-radius:999px; padding:11px 20px; cursor:pointer;
+  }
+
+  /* ---- entrance ---- */
+  .enter{opacity:0; transform:translateY(10px); animation:enter .5s ease forwards;}
+  @keyframes enter{to{opacity:1; transform:translateY(0);}}
+
+  /* ---- PIN screen ---- */
+  .pin-dots{display:flex; gap:14px; margin:6px 0 10px;}
+  .pin-dots i{
+    width:16px; height:16px; border-radius:50%; border:2px solid var(--rose);
+    background:transparent; transition:background .15s ease, transform .15s ease;
+  }
+  .pin-dots i.filled{background:var(--rose); transform:scale(1.08);}
+  .pin-error{font-family:'Quicksand'; font-weight:700; font-size:12.5px; color:var(--rose-deep); margin:0 0 18px; visibility:hidden;}
+  .keypad{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:auto;
+  }
+  .key{
+    font-family:'Quicksand'; font-weight:700; font-size:19px; color:var(--ink);
+    background:var(--bg-soft); border:1px solid var(--line); border-radius:16px;
+    padding:16px 0; cursor:pointer; transition:background .12s ease, transform .08s ease;
+  }
+  .key:active{transform:scale(.94); background:var(--rose-tint);}
+  .key.wide{grid-column:span 1;}
+  .key.ghost{background:transparent; border:none; color:var(--ink-soft);}
+
+  /* ---- typed message screen ---- */
+  .who{
+    font-family:'Fraunces'; font-style:italic; font-weight:600; font-size:22px;
+    color:var(--rose-deep); margin:0 0 14px;
+  }
+  .typed-wrap{flex:1; display:flex; align-items:center;}
+  .typed{
+    font-family:'Caveat'; font-weight:600; font-size:clamp(21px,5.6vw,25px); line-height:1.5; color:var(--ink);
+  }
+  .typed .cursor{display:inline-block; width:2px; height:1em; background:var(--rose); margin-left:2px; vertical-align:-2px; animation:blink 1s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .tap-hint{font-size:12px; color:var(--ink-soft); margin-top:18px; text-align:center; opacity:.8;}
+  .dots-progress{display:flex; gap:6px; margin-bottom:18px;}
+  .dots-progress i{width:7px; height:7px; border-radius:50%; background:var(--line);}
+  .dots-progress i.on{background:var(--rose);}
+
+  /* ---- quiz ---- */
+  .qhead{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .qcount{font-family:'Quicksand'; font-weight:700; font-size:12px; color:var(--ink-soft);}
+  .question{
+    font-family:'Fraunces'; font-style:italic; font-weight:600; font-size:20px;
+    line-height:1.4; margin:0 0 20px; text-wrap:balance;
+  }
+  .options{display:flex; flex-direction:column; gap:10px; margin-bottom:20px;}
+  .opt{
+    text-align:left; font-family:'Quicksand'; font-weight:600; font-size:14.5px; color:var(--ink);
+    background:var(--bg-soft); border:1.5px solid transparent; border-radius:14px;
+    padding:13px 16px; cursor:pointer; display:flex; gap:10px; align-items:flex-start;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .opt b{color:var(--rose-deep); font-family:'Quicksand'; font-weight:800;}
+  .opt.sel{border-color:var(--rose); background:var(--rose-tint);}
+  .quiz-actions{margin-top:auto; display:flex; justify-content:flex-end;}
+
+  /* ---- chat bubbles (used for jokes + final chat) ---- */
+  .chat-head{display:flex; align-items:center; gap:10px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line);}
+  .avatar{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; font-size:16px; flex-shrink:0;
+  }
+  .chat-name{font-family:'Quicksand'; font-weight:700; font-size:15px;}
+  .chat-sub{font-family:'Quicksand'; font-weight:500; font-size:11.5px; color:var(--ink-soft);}
+  .bubbles{display:flex; flex-direction:column; gap:10px; flex:1; overflow-y:auto; padding-right:2px;}
+  .bubble{
+    max-width:82%; font-family:'Caveat'; font-weight:600; font-size:18px; line-height:1.3;
+    padding:10px 15px; border-radius:16px; opacity:0; animation:enter .35s ease forwards;
+  }
+  .bubble.them{align-self:flex-start; background:var(--bg-soft); color:var(--ink); border-bottom-left-radius:4px;}
+  .bubble.me{align-self:flex-end; background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; border-bottom-right-radius:4px;}
+  .typing{align-self:flex-start; display:flex; gap:4px; padding:12px 14px; background:var(--bg-soft); border-radius:16px; border-bottom-left-radius:4px;}
+  .typing i{width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:bounce 1.1s infinite;}
+  .typing i:nth-child(2){animation-delay:.15s;} .typing i:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0); opacity:.5;} 30%{transform:translateY(-4px); opacity:1;}}
+
+  .chat-footer{margin-top:14px; text-align:center;}
+
+  /* ---- closing wall ---- */
+  #closingWall{
+    position:fixed; inset:0; z-index:80; display:grid; overflow:hidden;
+    background:var(--bg);
+  }
+  .wall-cell{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    aspect-ratio:1; font-family:'Caveat'; font-weight:700; font-size:12px; line-height:1.15;
+    color:var(--rose-deep); background:var(--rose-tint); border:1px solid var(--card);
+    opacity:0; transform:scale(.4) rotate(0deg); transition:opacity .5s ease, transform .5s cubic-bezier(.3,1.4,.4,1);
+    padding:4px; overflow:hidden;
+  }
+  .wall-cell.on{opacity:1; transform:scale(1);}
+  @media (prefers-reduced-motion: reduce){ .wall-cell{transition:none;} }
+
+  /* ---- decision (sí/no runaway) ---- */
+  .decision{position:relative; height:150px; margin-top:8px;}
+  .decision .yes{position:absolute; left:calc(50% - 90px); top:50%; transform:translateY(-50%);}
+  .decision .no{position:absolute; right:calc(50% - 90px); top:50%; transform:translateY(-50%); transition:left .18s ease, top .18s ease;}
+
+  /* ---- gift box ---- */
+  .box-stage{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center;}
+  .gift{width:120px; height:110px; position:relative; cursor:pointer;}
+  .gift .lid{
+    position:absolute; top:0; left:-6px; right:-6px; height:34px; background:linear-gradient(135deg,var(--rose),var(--rose-deep));
+    border-radius:10px; transition:transform .5s cubic-bezier(.3,1.6,.4,1), opacity .4s ease; transform-origin:left center;
+    box-shadow:0 6px 14px -6px rgba(184,48,90,.5);
+  }
+  .gift .lid::after{content:"";position:absolute; left:50%; top:-14px; transform:translateX(-50%); width:16px; height:22px; border:5px solid var(--gold); border-bottom:none; border-radius:12px 12px 0 0;}
+  .gift .base{
+    position:absolute; bottom:0; left:0; right:0; height:74px; background:var(--rose-tint);
+    border:2px solid var(--rose); border-radius:8px; overflow:hidden;
+  }
+  .gift .base::after{content:"";position:absolute; left:50%; top:0; bottom:0; width:10px; margin-left:-5px; background:var(--gold); opacity:.7;}
+  .gift.open .lid{transform:translate(-10px,-46px) rotate(-35deg); opacity:0;}
+  .gift-hint{font-family:'Quicksand'; font-weight:600; font-size:13px; color:var(--ink-soft);}
+  .tickets{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:4px;}
+  .ticket{
+    width:150px; background:var(--card); border:1.5px dashed var(--rose); border-radius:12px;
+    padding:14px 12px; position:relative; opacity:0; transform:scale(.85);
+  }
+  .ticket.show{animation:pop .45s cubic-bezier(.3,1.6,.4,1) forwards;}
+  @keyframes pop{to{opacity:1; transform:scale(1);}}
+  .ticket::before,.ticket::after{content:""; position:absolute; width:16px; height:16px; background:var(--bg); border:1.5px dashed var(--rose); border-radius:50%; top:50%; margin-top:-8px;}
+  .ticket::before{left:-9px;} .ticket::after{right:-9px;}
+  .ticket .tlabel{font-family:'Fraunces'; font-style:italic; font-weight:600; font-size:17px; color:var(--rose-deep);}
+  .ticket .tsub{font-family:'Quicksand'; font-weight:600; font-size:11px; color:var(--ink-soft); margin-top:6px; line-height:1.4;}
+
+  .confetti-piece{position:fixed; top:50%; left:50%; font-size:18px; pointer-events:none; z-index:50;
+    animation:confetti .9s ease-out forwards;}
+  @keyframes confetti{to{ transform:translate(var(--x),var(--y)) rotate(var(--r)); opacity:0;}}
+
+  /* ---- clues ---- */
+  .clue-list{display:flex; flex-direction:column; gap:14px; margin:6px 0 22px;}
+  .clue{display:flex; gap:12px; align-items:flex-start;}
+  .clue .ic{font-size:19px; flex-shrink:0;}
+  .clue .tx b{display:block; font-family:'Quicksand'; font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--rose-deep); margin-bottom:2px;}
+  .clue .tx span{font-family:'Caveat'; font-weight:600; font-size:18px; line-height:1.3;}
+
+  .shake{animation:shake .5s ease;}
+  @keyframes shake{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(3px);}30%,50%,70%{transform:translateX(-5px);}40%,60%{transform:translateX(5px);}}
+  @media (prefers-reduced-motion: reduce){ .shake{animation:none;} }
+
+  @media (max-width:430px){
+    body{padding-inline:12px;}
+    .card{padding:26px 18px; min-height:0 !important;}
+    .key{padding:13px 0; font-size:17px; border-radius:14px;}
+    .keypad{gap:10px;}
+    h1.script{font-size:clamp(26px,8vw,32px);}
+    .lede{font-size:15px;}
+    .question{font-size:17.5px;}
+    .opt{font-size:13.5px; padding:12px 14px;}
+    .ticket{width:126px; padding:12px 10px;}
+    .ticket .tlabel{font-size:15.5px;}
+    .gift{width:104px; height:96px;}
+    .bubble{max-width:88%; font-size:17px;}
+  }
+</style>
+
+<div class="bg-glow"></div>
+<div class="hearts" id="hearts"></div>
+<div class="stage"><div class="card enter" id="app"></div></div>
+
+<script>
+(function(){
+  var heartsWrap = document.getElementById('hearts');
+  var glyphs = ['💗','💕','✨','🌸'];
+  for(var i=0;i<16;i++){
+    var s = document.createElement('span');
+    s.textContent = glyphs[i % glyphs.length];
+    s.style.left = (Math.random()*100)+'%';
+    s.style.setProperty('--sz',(12+Math.random()*16)+'px');
+    s.style.setProperty('--dur',(11+Math.random()*10)+'s');
+    s.style.setProperty('--delay',(Math.random()*12)+'s');
+    s.style.setProperty('--sway',(Math.random()*40-20)+'px');
+    heartsWrap.appendChild(s);
+  }
+
+  var app = document.getElementById('app');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var MESSAGES = [
+    {who:'Mi amiga', text:'Antes que nada quiero hablarle a mi amiga. A esa persona con la que puedo estar sin maquillaje, sin filtros, diciendo tonterías a las dos de la mañana hasta que nos duela el estómago de la risa. Contigo el silencio no incomoda, las ideas más locas se vuelven planes reales, y hasta los problemas pesan menos cuando los cuento en voz alta. Gracias por quedarte incluso en los días en los que ni yo mismo me aguanto. Esa amistad no se consigue dos veces en la vida, y yo la encontré en ti.'},
+    {who:'Mi novia', text:'Ahora quiero hablarle a mi novia. A la que convirtió una canción cualquiera en nuestra canción, un lugar cualquiera en nuestro lugar, y un martes normal en el mejor recuerdo del mes. Contigo aprendí que el amor no se trata de ser perfectos, sino de elegirnos otra vez, incluso en los días difíciles. Me enamoro en los detalles pequeños: en tu risa cuando intento hacerte reír y no debería ser gracioso, en cómo me miras cuando crees que no me doy cuenta. Eres mi persona favorita para todo lo demás.'},
+    {who:'Mi socia', text:'Y por último quiero hablarle a mi socia. A la que se sienta conmigo a soñar en voz alta y después me ayuda a convertir esas locuras en planes con fecha y con número. Gracias por creer en cada idea antes de que tuviera forma, por sumar cuando las mías se quedan cortas, y por no soltarme la mano cuando el camino se pone cuesta arriba. Contigo no solo quiero construir un futuro, quiero construir una vida entera, proyecto a proyecto, sueño a sueño.'}
+  ];
+  var GLOBAL_MSG = 'Amiga, novia, socia... la vida me regaló la fortuna de encontrar las tres en una sola persona, y aun así todas esas palabras juntas se quedan cortas para explicar lo que siento. Eres mi risa favorita, mi lugar seguro y mi mejor decisión, repetida cada día sin dudarlo. Si el tiempo me preguntara cuánto quiero quedarme a tu lado, le respondería que una vida entera no me alcanza, y aun así pediría una más. Te amo, mi todo, hoy, mañana y en cada versión de nosotros que todavía nos falta vivir.';
+
+  var QUESTIONS = [
+    {q:'Cuando éramos pequeños, ¿qué pasó la primera vez que me atreví a pedirte que fueras mi novia?', opts:['Me dijiste que sí inmediatamente','Me dijiste que no 😂','Te quedaste pensando y nunca respondiste','Te dio pena y cambiaste de tema'], a:1},
+    {q:'¿Cómo fue la primera vez que te pedí que fueras mi novia?', opts:['En persona','Por una llamada','Por chats 💬','Por una carta'], a:2},
+    {q:'¿Cuál fue nuestro primer cine juntos? 🎬❤️', opts:['Royal Films','Cinépolis','Cinemark','Cine Colombia'], a:1},
+    {q:'¿Cuál de estas cosas pasó el día que te pedí que fueras mi novia? 😂❤️', opts:['No pasó nada raro','Me caí 😂','Nos dieron la mesa equivocada','Nos dieron un plato que no era'], a:3},
+    {q:'¿Qué fue lo que más nos costó al principio de nuestra relación?', opts:['La distancia','La atención y mantener una buena comunicación por chats 💬','Ponernos de acuerdo para salir','Acostumbrarnos a pasar tiempo juntos'], a:1}
+  ];
+
+  var JOKE_CORRECT = [
+    'Espera... déjame revisar tus respuestas... 🧐',
+    'Mmm, a ver, a ver... 👀✨',
+    'Ay no... creo que no ganaste nada 😢',
+    'Jajajaja ¡mentira! 😂💗 sí ganaste, y en grande',
+    'Tengo algo para ti...'
+  ];
+  var JOKE_WRONG = [
+    'Espera... déjame revisar tus respuestas... 🧐',
+    'Mmm, a ver, a ver... 👀',
+    'Uy amor... no tienes ningún regalo 😢',
+    'Jajajaja es broma 😂 (bueno, casi 🙈)'
+  ];
+  var CLOSING_MESSAGES = [
+    'Hola amor 💗 ¿cómo estás, aparte de hermosa? 😏',
+    'Si estás leyendo esto es porque llegaste hasta el final... y eso ya dice mucho de nosotros. 🥹',
+    'Quiero que sepas que todo esto lo hice con mucho amor.',
+    'Porque te quiero para toda mi vida.',
+    'Te quiero como la madre de mis hijos.',
+    'Como mi compañera de viajes, de metas, de sueños y de todos los proyectos que aún nos faltan.',
+    'En las cosas buenas y en las cosas malas... pero siempre, siempre contigo.',
+    'Te espero aquí, con muchas ansias 💗',
+    'Nos vemos hoy, mi amor.'
+  ];
+  var WALL_TEXT = 'Te amo Valerie Barro';
+
+  var REAL_PIN = '2812';
+  var state = { pin:'', msgIdx:0, qIdx:0, answers:[], jokeIdx:0, jokeList:[], repliedOnce:false };
+
+  function setCard(html, opts){
+    app.innerHTML = html;
+    app.classList.remove('enter');
+    void app.offsetWidth;
+    app.classList.add('enter');
+    if(opts && opts.minH){ app.style.minHeight = opts.minH; }
+  }
+  function on(sel, evt, fn){
+    var els = app.querySelectorAll(sel);
+    for(var i=0;i<els.length;i++){ els[i].addEventListener(evt, fn); }
+  }
+  function shakeCard(){ if(reduced) return; app.classList.add('shake'); setTimeout(function(){app.classList.remove('shake');},500); }
+
+  function typewrite(el, text, done){
+    var i = 0;
+    el.innerHTML = '<span class="txt"></span><span class="cursor"></span>';
+    var txt = el.querySelector('.txt');
+    var speed = reduced ? 0 : 18;
+    function step(){
+      if(i <= text.length){
+        txt.textContent = text.slice(0,i);
+        i++;
+        if(speed===0){ txt.textContent = text; finish(); return; }
+        setTimeout(step, speed);
+      } else { finish(); }
+    }
+    var finished = false;
+    function finish(){
+      if(finished) return; finished = true;
+      txt.textContent = text;
+      var c = el.querySelector('.cursor'); if(c) c.remove();
+      if(done) done();
+    }
+    el._skip = finish;
+    step();
+  }
+
+  /* ---------------- PIN SCREEN ---------------- */
+  function screenPin(){
+    setCard(
+      '<p class="eyebrow">Un momento antes de empezar</p>' +
+      '<h1 class="script">Hola mi amor 💗</h1>' +
+      '<p class="lede">Para entrar, pon el mismo PIN de tu celular.</p>' +
+      '<div class="pin-dots" id="dots">' +
+        '<i></i><i></i><i></i><i></i>' +
+      '</div>' +
+      '<p class="pin-error" id="pinError">ese no es... inténtalo otra vez 😉</p>' +
+      '<div class="keypad" id="keys">' +
+        [1,2,3,4,5,6,7,8,9].map(function(n){return '<button class="key" data-n="'+n+'">'+n+'</button>';}).join('') +
+        '<span></span>' +
+        '<button class="key" data-n="0">0</button>' +
+        '<button class="key ghost" data-del="1">⌫</button>' +
+      '</div>',
+      {minH:'520px'}
+    );
+    var dots = app.querySelectorAll('#dots i');
+    function refresh(){
+      for(var i=0;i<4;i++){ dots[i].classList.toggle('filled', i < state.pin.length); }
+    }
+    on('.key[data-n]', 'click', function(e){
+      if(state.pin.length >= 4) return;
+      document.getElementById('pinError').style.visibility = 'hidden';
+      state.pin += e.currentTarget.getAttribute('data-n');
+      refresh();
+      if(state.pin.length === 4){
+        if(state.pin === REAL_PIN){
+          setTimeout(function(){ screenMessage(0); }, 420);
+        } else {
+          shakeCard();
+          setTimeout(function(){
+            document.getElementById('pinError').style.visibility = 'visible';
+            state.pin = '';
+            refresh();
+          }, 400);
+        }
+      }
+    });
+    on('.key[data-del]', 'click', function(){
+      state.pin = state.pin.slice(0,-1);
+      refresh();
+    });
+  }
+
+  /* ---------------- INTRO MESSAGES ---------------- */
+  function dotsProgress(total, idx){
+    var d = '';
+    for(var i=0;i<total;i++){ d += '<i class="'+(i<=idx?'on':'')+'"></i>'; }
+    return '<div class="dots-progress">'+d+'</div>';
+  }
+
+  function screenMessage(idx){
+    if(idx >= MESSAGES.length){ screenGlobal(); return; }
+    var m = MESSAGES[idx];
+    setCard(
+      dotsProgress(MESSAGES.length+1, idx) +
+      '<p class="who">'+m.who+'</p>' +
+      '<div class="typed-wrap"><p class="typed" id="typed"></p></div>' +
+      '<p class="tap-hint" id="hint">toca la tarjeta para continuar</p>',
+      {minH:'420px'}
+    );
+    var typedEl = document.getElementById('typed');
+    var hint = document.getElementById('hint');
+    hint.style.visibility = 'hidden';
+    var doneTyping = false;
+    typewrite(typedEl, m.text, function(){ doneTyping = true; hint.style.visibility = 'visible'; });
+    app.onclick = function(){
+      if(!doneTyping){ typedEl._skip && typedEl._skip(); doneTyping = true; hint.style.visibility='visible'; return; }
+      app.onclick = null;
+      screenMessage(idx+1);
+    };
+  }
+
+  function screenGlobal(){
+    setCard(
+      dotsProgress(MESSAGES.length+1, MESSAGES.length) +
+      '<p class="who">Mi todo</p>' +
+      '<div class="typed-wrap"><p class="typed" id="typed"></p></div>' +
+      '<button class="btn" id="toQuiz" style="visibility:hidden; align-self:flex-start;">Sigamos →</button>',
+      {minH:'440px'}
+    );
+    var typedEl = document.getElementById('typed');
+    var btn = document.getElementById('toQuiz');
+    typewrite(typedEl, GLOBAL_MSG, function(){ btn.style.visibility = 'visible'; });
+    app.querySelector('#toQuiz').addEventListener('click', screenQuizIntro);
+    app.addEventListener('click', function once(e){
+      if(e.target.id === 'toQuiz') return;
+      typedEl._skip && typedEl._skip();
+    });
+  }
+
+  /* ---------------- QUIZ ---------------- */
+  function screenQuizIntro(){
+    setCard(
+      '<p class="eyebrow">Antes de continuar</p>' +
+      '<h1 class="script">Un pequeño reto 💗</h1>' +
+      '<p class="lede">Son 5 preguntas sobre nosotros. Si las aciertas todas, tienes una sorpresa esperándote. Si no... bueno, ya veremos 😏</p>' +
+      '<button class="btn" id="start" style="align-self:flex-start; margin-top:auto;">Empezar cuestionario</button>'
+    );
+    app.querySelector('#start').addEventListener('click', function(){ state.qIdx=0; state.answers=[]; screenQuiz(); });
+  }
+
+  function screenQuiz(){
+    var idx = state.qIdx;
+    var q = QUESTIONS[idx];
+    var letters = ['A','B','C','D'];
+    setCard(
+      '<div class="qhead"><p class="eyebrow" style="margin:0;">Pregunta '+(idx+1)+' de '+QUESTIONS.length+'</p>' +
+        '<span class="qcount">'+dotsProgress(QUESTIONS.length, idx)+'</span></div>' +
+      '<p class="question">'+q.q+'</p>' +
+      '<div class="options">' +
+        q.opts.map(function(o,i){ return '<button class="opt" data-i="'+i+'"><b>'+letters[i]+')</b> <span>'+o+'</span></button>'; }).join('') +
+      '</div>' +
+      '<div class="quiz-actions"><button class="btn" id="next" disabled>'+(idx===QUESTIONS.length-1 ? 'Ver resultado' : 'Siguiente →')+'</button></div>',
+      {minH:'480px'}
+    );
+    var chosen = null;
+    on('.opt', 'click', function(e){
+      chosen = parseInt(e.currentTarget.getAttribute('data-i'),10);
+      var all = app.querySelectorAll('.opt');
+      for(var i=0;i<all.length;i++){ all[i].classList.remove('sel'); }
+      e.currentTarget.classList.add('sel');
+      app.querySelector('#next').removeAttribute('disabled');
+    });
+    app.querySelector('#next').addEventListener('click', function(){
+      if(chosen===null) return;
+      state.answers.push(chosen);
+      if(idx === QUESTIONS.length-1){
+        var score = 0;
+        for(var i=0;i<QUESTIONS.length;i++){ if(state.answers[i]===QUESTIONS[i].a) score++; }
+        state.jokeList = (score === QUESTIONS.length) ? JOKE_CORRECT.slice() : JOKE_WRONG.slice();
+        state.jokeIdx = 0;
+        state.score = score;
+        screenJoke();
+      } else {
+        state.qIdx++;
+        screenQuiz();
+      }
+    });
+  }
+
+  /* ---------------- JOKE / JUDGING CHAT ---------------- */
+  function chatHeader(){
+    return '<div class="chat-head"><div class="avatar">💌</div>' +
+      '<div><p class="chat-name" style="margin:0;">Camilo</p><p class="chat-sub" style="margin:0;">escribiendo con el corazón</p></div></div>';
+  }
+
+  function screenJoke(){
+    setCard(
+      chatHeader() +
+      '<div class="bubbles" id="bubbles"></div>' +
+      '<div class="chat-footer" id="footer"></div>',
+      {minH:'480px'}
+    );
+    playJoke();
+  }
+
+  function playJoke(){
+    var bubbles = document.getElementById('bubbles');
+    var footer = document.getElementById('footer');
+    var i = 0;
+    function step(){
+      if(i >= state.jokeList.length){
+        if(state.score === QUESTIONS.length){
+          footer.innerHTML = '<button class="btn" id="toBox">Ver sorpresa 🎁</button>';
+          footer.querySelector('#toBox').addEventListener('click', screenBox);
+        } else {
+          shakeCard();
+          setTimeout(screenLoveQuestion, 500);
+        }
+        return;
+      }
+      var typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerHTML = '<i></i><i></i><i></i>';
+      bubbles.appendChild(typing);
+      bubbles.scrollTop = bubbles.scrollHeight;
+      setTimeout(function(){
+        typing.remove();
+        var b = document.createElement('div');
+        b.className = 'bubble them';
+        bubbles.appendChild(b);
+        bubbles.scrollTop = bubbles.scrollHeight;
+        var text = state.jokeList[i];
+        typewrite(b, text, function(){ i++; setTimeout(step, 500); });
+      }, reduced ? 150 : 900);
+    }
+    step();
+  }
+
+  function screenLoveQuestion(){
+    setCard(
+      '<p class="eyebrow">Una última pregunta</p>' +
+      '<h1 class="script">¿Me amas, sí o no? 💭</h1>' +
+      '<p class="lede">Contesta con el corazón.</p>' +
+      '<div class="decision">' +
+        '<button class="btn yes" id="loveYes">Sí 💗</button>' +
+        '<button class="btn-ghost no" id="loveNo">No</button>' +
+      '</div>',
+      {minH:'420px'}
+    );
+    app.querySelector('#loveYes').addEventListener('click', screenBox);
+    var noBtn = app.querySelector('#loveNo');
+    var decision = app.querySelector('.decision');
+    function dodge(){
+      var maxX = decision.clientWidth - noBtn.offsetWidth - 4;
+      var maxY = decision.clientHeight - noBtn.offsetHeight - 4;
+      var x = Math.max(4, Math.random()*maxX);
+      var y = Math.max(4, Math.random()*maxY);
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x+'px';
+      noBtn.style.top = y+'px';
+      noBtn.style.right = 'auto';
+      noBtn.style.transform = 'none';
+    }
+    noBtn.addEventListener('mouseenter', dodge);
+    noBtn.addEventListener('click', function(e){ e.preventDefault(); dodge(); });
+  }
+
+  /* ---------------- GIFT BOX ---------------- */
+  function burstConfetti(){
+    if(reduced) return;
+    var glyphs = ['💗','✨','💕','🎉'];
+    for(var i=0;i<22;i++){
+      var el = document.createElement('span');
+      el.className = 'confetti-piece';
+      el.textContent = glyphs[i % glyphs.length];
+      var ang = Math.random()*Math.PI*2;
+      var dist = 80 + Math.random()*140;
+      el.style.setProperty('--x', Math.cos(ang)*dist+'px');
+      el.style.setProperty('--y', Math.sin(ang)*dist+'px');
+      el.style.setProperty('--r', (Math.random()*360)+'deg');
+      document.body.appendChild(el);
+      (function(node){ setTimeout(function(){ node.remove(); }, 950); })(el);
+    }
+  }
+
+  function screenBox(){
+    setCard(
+      '<p class="eyebrow">Tu sorpresa</p>' +
+      '<h1 class="script">Toca la caja 🎁</h1>' +
+      '<div class="box-stage">' +
+        '<div class="gift" id="gift"><div class="lid"></div><div class="base"></div></div>' +
+        '<p class="gift-hint" id="hint">toca para abrir</p>' +
+        '<div class="tickets" id="tickets"></div>' +
+        '<div id="afterBox"></div>' +
+      '</div>',
+      {minH:'480px'}
+    );
+    var gift = document.getElementById('gift');
+    var opened = false;
+    gift.addEventListener('click', function(){
+      if(opened) return;
+      opened = true;
+      gift.classList.add('open');
+      document.getElementById('hint').style.opacity = '0';
+      burstConfetti();
+      setTimeout(function(){
+        var wrap = document.getElementById('tickets');
+        wrap.innerHTML =
+          '<div class="ticket" id="t1"><p class="tlabel">Cine 🎬</p><p class="tsub">Una función solo para nosotros dos</p></div>' +
+          '<div class="ticket" id="t2"><p class="tlabel">Cena 🍽️</p><p class="tsub">Para cerrar la noche como se merece</p></div>';
+        setTimeout(function(){ document.getElementById('t1').classList.add('show'); },50);
+        setTimeout(function(){ document.getElementById('t2').classList.add('show'); },220);
+        setTimeout(function(){
+          document.getElementById('afterBox').innerHTML =
+            '<p class="lede" style="margin:16px 0 12px;">¿Aceptas ir conmigo? 💌</p>' +
+            '<div class="decision" style="height:100px;">' +
+              '<button class="btn yes" id="accept">¡Sí, acepto! 💗</button>' +
+              '<button class="btn-ghost no" id="decline">No 🙈</button>' +
+            '</div>';
+          document.getElementById('accept').addEventListener('click', screenClues);
+          var declineBtn = document.getElementById('decline');
+          var box = document.querySelector('.decision');
+          declineBtn.addEventListener('mouseenter', function(){
+            var maxX = box.clientWidth - declineBtn.offsetWidth - 4;
+            var maxY = box.clientHeight - declineBtn.offsetHeight - 4;
+            declineBtn.style.position='absolute';
+            declineBtn.style.left = Math.max(4,Math.random()*maxX)+'px';
+            declineBtn.style.top = Math.max(4,Math.random()*maxY)+'px';
+            declineBtn.style.right='auto'; declineBtn.style.transform='none';
+          });
+        }, 600);
+      }, reduced ? 50 : 500);
+    });
+  }
+
+  /* ---------------- CLUES ---------------- */
+  function screenClues(){
+    setCard(
+      '<p class="eyebrow">¡Aceptaste! 🎉</p>' +
+      '<h1 class="script">Listo, mi amor</h1>' +
+      '<div class="clue-list">' +
+        '<div class="clue"><span class="ic">🕓</span><div class="tx"><b>Hora</b><span>Te necesito aquí a más tardar a las 4:30 de la tarde.</span></div></div>' +
+        '<div class="clue"><span class="ic">📍</span><div class="tx"><b>Lugar</b><span>Barranquilla — Portal del Prado.</span></div></div>' +
+        '<div class="clue"><span class="ic">👗</span><div class="tx"><b>Vestimenta</b><span>Ponte bonita, para mí 💗</span></div></div>' +
+        '<div class="clue"><span class="ic">🕵️</span><div class="tx"><b>Pista</b><span>Yo estaré vestido de negro 🖤</span></div></div>' +
+      '</div>' +
+      '<button class="btn" id="toChat" style="align-self:flex-start; margin-top:auto;">Vale, ¡ya voy! →</button>',
+      {minH:'460px'}
+    );
+    app.querySelector('#toChat').addEventListener('click', screenFinal);
+  }
+
+  /* ---------------- FINAL MESSAGE (one-way, then closes) ---------------- */
+  function screenFinal(){
+    setCard(
+      chatHeader() +
+      '<div class="bubbles" id="bubbles"></div>',
+      {minH:'520px'}
+    );
+    var bubbles = document.getElementById('bubbles');
+    var i = 0;
+    function step(){
+      if(i >= CLOSING_MESSAGES.length){ setTimeout(startClosingWall, 900); return; }
+      var typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerHTML = '<i></i><i></i><i></i>';
+      bubbles.appendChild(typing);
+      bubbles.scrollTop = bubbles.scrollHeight;
+      setTimeout(function(){
+        typing.remove();
+        var b = document.createElement('div');
+        b.className = 'bubble them';
+        bubbles.appendChild(b);
+        bubbles.scrollTop = bubbles.scrollHeight;
+        var text = CLOSING_MESSAGES[i];
+        typewrite(b, text, function(){ i++; setTimeout(step, 550); });
+      }, reduced ? 150 : 900);
+    }
+    step();
+  }
+
+  /* ---------------- CLOSING WALL ---------------- */
+  function startClosingWall(){
+    var wall = document.createElement('div');
+    wall.id = 'closingWall';
+    wall.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(wall);
+
+    var cell = 92;
+    var cols = Math.ceil(window.innerWidth / cell) + 1;
+    var rows = Math.ceil(window.innerHeight / cell) + 1;
+    var total = cols * rows;
+    wall.style.gridTemplateColumns = 'repeat(' + cols + ',1fr)';
+
+    var order = [];
+    for(var n=0;n<total;n++){ order.push(n); }
+    for(var k=order.length-1;k>0;k--){ var j = Math.floor(Math.random()*(k+1)); var tmp=order[k]; order[k]=order[j]; order[j]=tmp; }
+
+    var frags = [WALL_TEXT, '💗'];
+    var cells = [];
+    for(var m=0;m<total;m++){
+      var c = document.createElement('div');
+      c.className = 'wall-cell';
+      c.textContent = frags[m % 3 === 0 ? 1 : 0];
+      c.style.transform = 'rotate(' + (Math.random()*16-8) + 'deg)';
+      wall.appendChild(c);
+      cells.push(c);
+    }
+
+    var totalDuration = reduced ? 0 : 3800;
+    var step = total ? totalDuration/total : 0;
+    order.forEach(function(idx, pos){
+      setTimeout(function(){ cells[idx].classList.add('on'); }, step*pos);
+    });
+  }
+
+  screenPin();
+})();
+</script>
