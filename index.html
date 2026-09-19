@@ -249,15 +249,16 @@
   .gift-hint{font-family:'Quicksand'; font-weight:600; font-size:13px; color:var(--ink-soft);}
   .tickets{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:4px;}
   .ticket{
-    width:150px; background:var(--card); border:1.5px dashed var(--rose); border-radius:12px;
-    padding:14px 12px; position:relative; opacity:0; transform:scale(.85);
+    width:160px; background:var(--card); border:1.5px dashed var(--rose); border-radius:12px;
+    padding:12px 12px 14px; position:relative; opacity:0; transform:scale(.85);
   }
   .ticket.show{animation:pop .45s cubic-bezier(.3,1.6,.4,1) forwards;}
   @keyframes pop{to{opacity:1; transform:scale(1);}}
   .ticket::before,.ticket::after{content:""; position:absolute; width:16px; height:16px; background:var(--bg); border:1.5px dashed var(--rose); border-radius:50%; top:50%; margin-top:-8px;}
   .ticket::before{left:-9px;} .ticket::after{right:-9px;}
-  .ticket .tlabel{font-family:'Fraunces'; font-style:italic; font-weight:600; font-size:17px; color:var(--rose-deep);}
+  .ticket .tlabel{font-family:'Fraunces'; font-style:italic; font-weight:600; font-size:16px; color:var(--rose-deep); line-height:1.25;}
   .ticket .tsub{font-family:'Quicksand'; font-weight:600; font-size:11px; color:var(--ink-soft); margin-top:6px; line-height:1.4;}
+  .ticket img{width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:8px; display:block; margin-bottom:10px; border:1px solid var(--line);}
 
   .confetti-piece{position:fixed; top:50%; left:50%; font-size:18px; pointer-events:none; z-index:50;
     animation:confetti .9s ease-out forwards;}
@@ -348,8 +349,7 @@
     'Te quiero como la madre de mis hijos.',
     'Como mi compañera de viajes, de metas, de sueños y de todos los proyectos que aún nos faltan.',
     'En las cosas buenas y en las cosas malas... pero siempre, siempre contigo.',
-    'Te espero aquí, con muchas ansias 💗',
-    'Nos vemos hoy, mi amor.'
+    'Nos vemos hoy, mi amor. 💗'
   ];
   var WALL_TEXT = 'Te amo Valerie Barro';
 
@@ -655,8 +655,8 @@
       setTimeout(function(){
         var wrap = document.getElementById('tickets');
         wrap.innerHTML =
-          '<div class="ticket" id="t1"><p class="tlabel">Cine 🎬</p><p class="tsub">Una función solo para nosotros dos</p></div>' +
-          '<div class="ticket" id="t2"><p class="tlabel">Cena 🍽️</p><p class="tsub">Para cerrar la noche como se merece</p></div>';
+          '<div class="ticket" id="t1"><img src="img/cine.jpeg" alt="Spider-Man: Un nuevo día"><p class="tlabel">Cine Focus Sabanalarga 🎬</p><p class="tsub">Spider-Man: Un nuevo día</p></div>' +
+          '<div class="ticket" id="t2"><img src="img/cena.jpeg" alt="CoquiChef"><p class="tlabel">CoquiChef 🍽️</p><p class="tsub">Para cerrar la noche como se merece</p></div>';
         setTimeout(function(){ document.getElementById('t1').classList.add('show'); },50);
         setTimeout(function(){ document.getElementById('t2').classList.add('show'); },220);
         setTimeout(function(){
@@ -688,8 +688,8 @@
       '<p class="eyebrow">¡Aceptaste! 🎉</p>' +
       '<h1 class="script">Listo, mi amor</h1>' +
       '<div class="clue-list">' +
-        '<div class="clue"><span class="ic">🕓</span><div class="tx"><b>Hora</b><span>Te necesito aquí a más tardar a las 4:30 de la tarde.</span></div></div>' +
-        '<div class="clue"><span class="ic">📍</span><div class="tx"><b>Lugar</b><span>Barranquilla — Portal del Prado.</span></div></div>' +
+        '<div class="clue"><span class="ic">🕓</span><div class="tx"><b>Hora</b><span>Te necesito lista a más tardar a las 4:00 de la tarde.</span></div></div>' +
+        '<div class="clue"><span class="ic">📍</span><div class="tx"><b>Lugar</b><span>Déjate llevar por mí.</span></div></div>' +
         '<div class="clue"><span class="ic">👗</span><div class="tx"><b>Vestimenta</b><span>Ponte bonita, para mí 💗</span></div></div>' +
         '<div class="clue"><span class="ic">🕵️</span><div class="tx"><b>Pista</b><span>Yo estaré vestido de negro 🖤</span></div></div>' +
       '</div>' +
